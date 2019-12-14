@@ -2,24 +2,24 @@
  * Module dependencies.
  */
 
-const express = require('express');
-const session = require('express-session');
-const compression = require('compression');
-const morgan = require('morgan');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const methodOverride = require('method-override');
-const csrf = require('csurf');
-const helmet = require('helmet');
+const express = require("express");
+const session = require("express-session");
+const compression = require("compression");
+const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+const methodOverride = require("method-override");
+// const csrf = require("csurf");
+const helmet = require("helmet");
 
-const mongoStore = require('connect-mongo')(session);
-const flash = require('connect-flash');
-const winston = require('winston');
-const helpers = require('view-helpers');
-const config = require('./');
-const pkg = require('../package.json');
+const mongoStore = require("connect-mongo")(session);
+const flash = require("connect-flash");
+const winston = require("winston");
+const helpers = require("view-helpers");
+const config = require("./env/development");
+const pkg = require("../package.json");
 
-const env = process.env.NODE_ENV || 'development';
+const env = process.env.NODE_ENV || "development";
 
 /**
  * Expose
@@ -36,27 +36,27 @@ module.exports = function(app, passport) {
   );
 
   // Static files middleware
-  app.use(express.static(config.root + '/public'));
+  app.use(express.static(config.root + "/public"));
 
   // Use winston on production
   let log;
-  if (env !== 'development') {
+  if (env !== "development") {
     log = {
       stream: {
         write: msg => winston.info(msg)
       }
     };
   } else {
-    log = 'dev';
+    log = "dev";
   }
 
   // Don't log during tests
   // Logging middleware
-  if (env !== 'test') app.use(morgan(log));
+  if (env !== "test") app.use(morgan(log));
 
   // set views path and default layout
-  app.set('views', config.root + '/app/views');
-  app.set('view engine', 'pug');
+  app.set("views", config.root + "/app/views");
+  app.set("view engine", "pug");
 
   // expose package.json to views
   app.use(function(req, res, next) {
@@ -74,7 +74,7 @@ module.exports = function(app, passport) {
   app.use(bodyParser.json());
   app.use(
     methodOverride(function(req) {
-      if (req.body && typeof req.body === 'object' && '_method' in req.body) {
+      if (req.body && typeof req.body === "object" && "_method" in req.body) {
         // look in urlencoded POST bodies and delete it
         const method = req.body._method;
         delete req.body._method;
@@ -92,8 +92,8 @@ module.exports = function(app, passport) {
       resave: true,
       saveUninitialized: true,
       store: new mongoStore({
-        url: config.db,
-        collection: 'sessions'
+        url: config.DB_HOST,
+        collection: "sessions"
       })
     })
   );
@@ -109,13 +109,13 @@ module.exports = function(app, passport) {
   app.use(helpers(pkg.name));
 
   // adds CSRF support
-  if (process.env.NODE_ENV !== 'test') {
-    app.use(csrf());
+  // if (process.env.NODE_ENV !== "test") {
+  //   app.use(csrf());
 
-    // This could be moved to view-helpers :-)
-    app.use(function(req, res, next) {
-      res.locals.csrf_token = req.csrfToken();
-      next();
-    });
-  }
+  //   // This could be moved to view-helpers :-)
+  //   app.use(function(req, res, next) {
+  //     res.locals.csrf_token = req.csrfToken();
+  //     next();
+  //   });
+  // }
 };
