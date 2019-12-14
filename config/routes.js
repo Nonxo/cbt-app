@@ -5,7 +5,7 @@
  */
 
 // const home = require("../app/routes/home");
-const user = require("../app/routes/user");
+const user = require("../app/user/user.route");
 const express = require("express");
 const router = express.Router();
 

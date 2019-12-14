@@ -1,4 +1,4 @@
-const UserService = require("../services/user");
+const UserService = require("./user.service");
 
 exports.registerUser = async (req, res) => {
   try {
