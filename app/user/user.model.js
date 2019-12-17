@@ -12,12 +12,17 @@ const uuid4 = require("uuid/v4");
  * User schema
  */
 
-const UserSchema = new Schema({
-  id: { type: String, default: uuid4 },
-  name: { type: String, default: "" },
-  email: { type: String, default: "" },
-  hashed_password: { type: String, default: "" },
-  salt: { type: String, default: "" }
+let UserSchema = new Schema({
+  _id: { type: String, default: uuid4 },
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  isVerified: { type: Boolean, default: false },
+  phoneNumber: { type: String, required: true },
+  dateOfBirth: { type: Date, required: true },
+  email: { type: String, required: true },
+  password: { type: String, required: true },
+  salt: { type: String },
+  token: { type: String }
 });
 
 /**
@@ -32,6 +37,7 @@ const UserSchema = new Schema({
  */
 UserSchema.methods.setPassword = function(password) {
   this.salt = crypto.randomBytes(Number(12)).toString("hex");
+  console.log(this.salt);
   return (this.password = crypto
     .pbkdf2Sync(password, this.salt, 10000, 512, "sha512")
     .toString("hex"));
@@ -86,4 +92,5 @@ UserSchema.static({});
  * Register
  */
 
-module.exports = mongoose.model("User", UserSchema);
+mongoose.model("User", UserSchema);
+module.exports = mongoose.model("User");
