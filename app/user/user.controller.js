@@ -27,12 +27,12 @@ exports.registerUser = async (req, res) => {
 exports.authenticate = async (req, res) => {
   try {
     const value = req.body;
-    const data = await UserService.registerUser(value);
+    const data = await UserService.authenticate(value);
 
     if (data.error) {
       return res.status(400).json({
         success: false,
-        message: data.error.message
+        message: data.msg
       });
     }
 
