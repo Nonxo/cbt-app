@@ -18,7 +18,12 @@ let UserSchema = new Schema({
   lastName: { type: String, required: true },
   isVerified: { type: Boolean, default: false },
   phoneNumber: { type: String, required: true },
-  dateOfBirth: { type: Date, required: true },
+  dateOfBirth: {
+    type: Date,
+    min: "1970-01-01",
+    max: Date.now(),
+    required: true
+  },
   email: { type: String, required: true },
   password: { type: String, required: true },
   salt: { type: String },
@@ -41,6 +46,13 @@ UserSchema.methods.setPassword = function(password) {
   return (this.password = crypto
     .pbkdf2Sync(password, this.salt, 10000, 512, "sha512")
     .toString("hex"));
+};
+
+UserSchema.methods.comparePassword = function(password, salt, hashedPassword) {
+  const hash = crypto
+    .pbkdf2Sync(password, salt, 10000, 512, "sha512")
+    .toString("hex");
+  return hashedPassword === hash;
 };
 
 UserSchema.methods.generateJWT = function() {
