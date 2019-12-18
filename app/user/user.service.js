@@ -59,9 +59,11 @@ exports.authenticate = async function(data) {
         msg: "Invalid Credentials. Please check your email and password"
       };
     }
+    const { firstName, lastName, email } = validUser;
+    const UserDetails = { firstName, lastName, email };
     return {
       error: false,
-      validUser
+      UserDetails
     };
   } catch (error) {
     throw new Error(error);
