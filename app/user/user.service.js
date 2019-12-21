@@ -44,7 +44,7 @@ exports.authenticate = async function(data) {
     if (!validUser) {
       return {
         error: true,
-        msg: "Invalid Email or Password"
+        msg: "Invalid Credentials. Please check your email and password"
       };
     }
     const { password, salt } = validUser;
