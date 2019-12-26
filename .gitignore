@@ -3,6 +3,8 @@ npm-debug.log
 .env
 data
 .vscode
+.DS_Store
+/*.env
 
 
 # Logs
