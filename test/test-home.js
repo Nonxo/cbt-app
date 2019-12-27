@@ -1,16 +1,16 @@
-'use strict';
+"use strict";
 
 /*
  * Module dependencies.
  */
 
-const test = require('tape');
-const request = require('supertest');
-const { app } = require('../server');
+const test = require("tape");
+const request = require("supertest");
+const { app } = require("../server");
 
-test('Home page', t => {
+test("Home page", t => {
   request(app)
-    .get('/')
+    .get("/")
     .expect(200)
     .end(t.end);
 });
