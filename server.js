@@ -63,7 +63,7 @@ function connect() {
     useFindAndModify: false
   };
   mongoose
-    .connect(config.DB_HOST, options, () => {
+    .connect(config.MONGODB_URL, options, () => {
       console.log("We are connected");
     })
     .catch(err => console.log(err));
