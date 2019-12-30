@@ -5,7 +5,8 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 module.exports = {
-  DB_HOST: process.env.DB_HOST || "mongodb://localhost:27017/my_app_test",
+  MONGODB_URL:
+    process.env.MONGODB_URL || "mongodb://localhost:27017/my_app_test",
   facebook: {
     clientID: "APP_ID",
     clientSecret: "SECRET",
