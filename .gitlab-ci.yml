@@ -8,7 +8,6 @@ cache:
 stages:
   - deploy_production
 
-
 # Job 2:
 # Deploy to staging
 Production:
@@ -20,4 +19,4 @@ Production:
     - apt-get update -qy
     - apt-get install -y ruby-dev
     - gem install dpl
-    - dpl --provider=heroku --app=fast-badlands-02069 --api-key=bf7268bf-0f30-41e7-ae4c-49c363d92173
+    - dpl --provider=heroku --app=mycbt-app --api-key=bf7268bf-0f30-41e7-ae4c-49c363d92173
