@@ -92,7 +92,7 @@ module.exports = function(app, passport) {
       resave: true,
       saveUninitialized: true,
       store: new mongoStore({
-        url: config.MONGODB_URL,
+        url: config.MONGODB,
         collection: "sessions"
       })
     })
