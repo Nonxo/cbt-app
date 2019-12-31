@@ -47,7 +47,9 @@ require("./config/express")(app, passport);
 
 app.use("/", router);
 connection.on("error", console.log).once("open", listen);
-
+app.get("/", function(req, res) {
+  res.status(200).sendFile(__dirname + "/index.html");
+});
 //  .on("disconnected", connect)
 function listen() {
   if (app.get("env") === "test") return;
