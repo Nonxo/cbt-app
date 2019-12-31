@@ -11,7 +11,7 @@ const bodyParser = require("body-parser");
 const methodOverride = require("method-override");
 // const csrf = require("csurf");
 const helmet = require("helmet");
-
+const mongoose = require("mongoose");
 const mongoStore = require("connect-mongo")(session);
 const flash = require("connect-flash");
 const winston = require("winston");
@@ -92,7 +92,8 @@ module.exports = function(app, passport) {
       resave: true,
       saveUninitialized: true,
       store: new mongoStore({
-        url: config.MONGODB,
+        mongooseConnection: mongoose.connection,
+        url: config.MONGODB_URL,
         collection: "sessions"
       })
     })

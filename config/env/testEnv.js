@@ -5,9 +5,8 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 module.exports = {
-  MONGODB_URL:
-    process.env.MONGODB_URL || "mongodb://localhost:27017/my_app_test",
-  MONGODB: process.env.MONGODB,
+  MONGODB_URL: process.env.MONGODB_URL,
+  // MONGODB: process.env.MONGODB,
   facebook: {
     clientID: "APP_ID",
     clientSecret: "SECRET",
@@ -25,3 +24,5 @@ module.exports = {
     ]
   }
 };
+
+//|| "mongodb://localhost:27017/my_app_test"
