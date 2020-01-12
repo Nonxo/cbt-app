@@ -59,6 +59,7 @@ UserSchema.methods.generateJWT = function() {
   const today = new Date();
   const expirationDate = new Date(today);
   expirationDate.setDate(today.getDate() + 60);
+  console.log(this.email);
   return (this.token = jwt.sign(
     {
       email: this.email,
