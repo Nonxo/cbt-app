@@ -51,34 +51,44 @@ exports.authenticate = async (req, res) => {
 
 exports.forgotPassword = async (req, res) => {
   try {
-    const value = req.body;
+    const value = req.body.email;
+
+    if (!req.body.email) {
+      res.status(500).json({
+        success: false,
+        message: "Email is required"
+      });
+    }
     const data = await UserService.forgotPassword(value);
+    console.log(data);
     if (data.error) {
-      return res.status(422).json({
-        success: true,
-        message: data.message
+      console.log(data.error);
+      return res.status(403).json({
+        success: false,
+        message: data.error
       });
     }
     return res.status(200).json({
       success: true,
       message: data
     });
-  } catch (error) {
+  } catch (err) {
     res.status(500).json({
       success: false,
-      message: error.message
+      message: err
     });
   }
 };
 
 exports.index = function(req, res) {
-  return res.sendFile("../views/home/index.html");
+  return res.sendFile(path.resolve("app/views/home/index.html"));
 };
 
 exports.renderForgotPasswordTemplate = function(req, res) {
-  return res.sendFile(path.resolve("../views/home/forgot-password.html"));
+  return res.sendFile(path.resolve("app/views/home/forgot-password.html"));
+  // return res.sendFile(path.resolve("../views/home/forgot-password.html"));
 };
 
 exports.renderResetPasswordTemplate = function(req, res) {
-  return res.sendFile(path.resolve("../views/home/reset-password.html"));
+  return res.sendFile(path.resolve("app/views/home/reset-password.html"));
 };
