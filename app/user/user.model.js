@@ -70,20 +70,6 @@ UserSchema.methods.generateJWT = function() {
   ));
 };
 
-UserSchema.methods.generateJWT = function() {
-  const today = new Date();
-  const expirationDate = new Date(today);
-  expirationDate.setDate(today.getDate() + 60);
-  return (this.token = jwt.sign(
-    {
-      email: this.email,
-      id: this._id,
-      exp: parseInt((expirationDate.getTime() / 100).toString(), 10)
-    },
-    "secret"
-  ));
-};
-
 UserSchema.methods.toAuthJSON = function() {
   return {
     _id: this._id,
