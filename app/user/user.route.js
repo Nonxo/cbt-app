@@ -2,9 +2,23 @@ const express = require("express");
 const router = express.Router();
 const UserController = require("./user.controller");
 
-const { registerUser, authenticate } = UserController;
+const {
+  registerUser,
+  authenticate,
+  forgotPassword,
+  renderForgotPasswordTemplate,
+  renderResetPasswordTemplate,
+  index
+} = UserController;
 
-router.post("/", registerUser);
-router.post("/login", authenticate);
+router.route("/").post(registerUser);
+router.route("/").get(index);
+router.route("/login").post(authenticate);
+router
+  .route("/auth/forgot_password")
+  .get(renderForgotPasswordTemplate)
+  .post(forgotPassword);
+
+router.route("/auth/reset_password").get(renderResetPasswordTemplate);
 
 module.exports = router;
