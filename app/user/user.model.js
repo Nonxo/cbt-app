@@ -48,6 +48,9 @@ let UserSchema = new Schema({
   password: { type: String, required: true },
   salt: { type: String },
   token: { type: String },
+  secretKey: {
+    type: String
+  },
   role: {
     type: String,
     enum: ["Admin", "User"]
