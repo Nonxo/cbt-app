@@ -79,6 +79,12 @@ UserSchema.methods.comparePassword = function(password, salt, hashedPassword) {
   return hashedPassword === hash;
 };
 
+UserSchema.methods.setRoles = function(secretKey) {
+  if (secretKey === process.env.MYPRIVATEKEY) {
+    return (this.role = "Admin");
+  }
+  return (this.role = "User");
+};
 UserSchema.methods.generateAuthToken = function() {
   const myPrivateKey = process.env.MYPRIVATEKEY;
   const userToken = jwt.sign(
