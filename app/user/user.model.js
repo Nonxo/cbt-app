@@ -24,10 +24,20 @@ let UserSchema = new Schema({
     max: Date.now(),
     required: true
   },
-  email: { type: String, required: true },
+  email: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    unique: true,
+    required: true
+  },
   password: { type: String, required: true },
   salt: { type: String },
-  token: { type: String }
+  token: { type: String },
+  role: {
+    type: String,
+    enum: ["Admin", "User"]
+  }
 });
 
 /**
