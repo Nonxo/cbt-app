@@ -106,7 +106,6 @@ exports.forgotPassword = async function(data) {
     const validEmail = await User.findOne({
       email: data
     });
-
     // console.log("We are valid also" + validEmail);
     if (!validEmail) {
       return {
@@ -178,7 +177,7 @@ exports.validPasswordToken = async function(data) {
     });
 
     if (validToken == null) {
-      cons
+      cons;
     }
   } catch (error) {}
 };
