@@ -6,18 +6,31 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const uuid4 = require("uuid/v4");
+// const uuid4 = require("uuid/v4");
 
 /**
  * User schema
  */
 
 let UserSchema = new Schema({
-  _id: { type: String, default: uuid4 },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
-  isVerified: { type: Boolean, default: false },
-  phoneNumber: { type: String, required: true },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  phoneNumber: {
+    type: String,
+    validate: {
+      validator: function(type) {
+        return type.match(
+          /^((\+234)|0)([8]((0[2-9])|(1[0-9]))|([7,9]0[1-9]))[0-9]{7}$/
+        );
+      },
+      message: `Phone number is invalid`
+    },
+    required: true
+  },
   dateOfBirth: {
     type: Date,
     min: "1970-01-01",
