@@ -6,7 +6,8 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-// const uuid4 = require("uuid/v4");
+const dotenv = require("dotenv");
+dotenv.config();
 
 /**
  * User schema
@@ -78,6 +79,17 @@ UserSchema.methods.comparePassword = function(password, salt, hashedPassword) {
   return hashedPassword === hash;
 };
 
+UserSchema.methods.generateAuthToken = function() {
+  const myPrivateKey = process.env.MYPRIVATEKEY;
+  const userToken = jwt.sign(
+    {
+      _id: this._id,
+      role: this.role
+    },
+    myPrivateKey
+  );
+  return (this.token = userToken);
+};
 UserSchema.methods.generateJWT = function() {
   const today = new Date();
   const expirationDate = new Date(today);
