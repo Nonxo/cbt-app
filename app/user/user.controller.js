@@ -7,7 +7,7 @@ exports.registerUser = async (req, res) => {
     const data = await UserService.registerUser(value);
     console.log(data);
     if (data.error) {
-      return res.status(400).json({
+      return res.status(200).json({
         success: false,
         message: data.msg
       });
