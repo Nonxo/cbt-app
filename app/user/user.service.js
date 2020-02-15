@@ -195,15 +195,19 @@ exports.validPasswordToken = async function(data) {
 
 exports.resetPassword = async function(data) {
   try {
+    console.log(data, "We are together again");
+    const { token } = data;
     const validUser = await User.findOne({
-      token: data.token
+      resetPasswordToken: token,
+      resetPasswordExpires: {
+        $gt: Date.now()
+      }
     });
-    if (validUser) {
-      if (data.newPassword === data.verifyPassword) {
-        validUser.setPassword(data.password);
-      } else
-        return {
-          error: true,
+    console.log(validUser);
+    if (validUser == null) {
+      console.log("Password reset is null");
+      return {
+        error: true,
           msg: "Password does not match"
         };
     }
