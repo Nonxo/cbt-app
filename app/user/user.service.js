@@ -28,13 +28,22 @@ const smtpTransport = nodemailer.createTransport({
 // smtpTransport.use("compile", handleBars(handleBarsOption));
 exports.registerUser = async function(data) {
   try {
+    const {
+      firstName,
+      lastName,
+      phoneNumber,
+      dateOfBirth,
+      email,
+      password,
+      secretKey
+    } = data;
     const newUser = new User({
-      firstName: data.firstName,
-      lastName: data.lastName,
-      phoneNumber: data.phoneNumber,
-      dateOfBirth: data.dateOfBirth,
-      email: data.email,
-      password: data.password
+      firstName,
+      lastName,
+      phoneNumber,
+      dateOfBirth,
+      email,
+      password
     });
     const validUser = await User.exists({
       email: data.email
@@ -46,14 +55,16 @@ exports.registerUser = async function(data) {
       };
     }
 
-    newUser.setPassword(data.password);
-    newUser.generateJWT();
+    newUser.setPassword(password);
+    newUser.setRoles(secretKey);
+    newUser.generateAuthToken();
     const user = await newUser.save();
     console.log(user);
-    const { firstName } = user;
+    // const { firstName } = user;
     return {
       error: false,
-      message: `${firstName} successfully created`
+      message: `${firstName} successfully created`,
+      user: newUser.toAuthJSON()
     };
   } catch (error) {
     throw new Error(error);
