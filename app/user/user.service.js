@@ -117,17 +117,25 @@ exports.forgotPassword = async function(data) {
     const validEmail = await User.findOne({
       email: data
     });
-    // console.log("We are valid also" + validEmail);
+    console.log("We are valid also" + validEmail);
+    const token = registeredUser.generateJWT();
+    console.log(token, "We are coming");
+    const { _id, email: userEmail } = validEmail;
+
     if (!validEmail) {
       return {
         error: true,
         msg: "User not found"
       };
     }
-    const { _id, email: userEmail } = validEmail;
-    const token = registeredUser.generateJWT();
-
-    await User.findOneAndUpdate({ _id }, { token });
+    await User.findOneAndUpdate(
+      { _id },
+      {
+        resetPasswordToken: token,
+        resetPasswordExpires: Date.now() + 3600000
+      }
+    );
+    // await User.findOneAndUpdate({ _id }, { token });
     let smtpTransport = nodemailer.createTransport({
       service: "Gmail",
       auth: {
