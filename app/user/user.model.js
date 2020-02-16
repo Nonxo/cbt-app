@@ -96,6 +96,8 @@ UserSchema.methods.setRoles = function(secretKey) {
 };
 UserSchema.methods.generateAuthToken = function() {
   const myPrivateKey = process.env.MYPRIVATEKEY;
+  this.resetPasswordToken = null;
+  this.resetPasswordExpires = null;
   const userToken = jwt.sign(
     {
       _id: this._id,
@@ -105,6 +107,7 @@ UserSchema.methods.generateAuthToken = function() {
   );
   return (this.token = userToken);
 };
+
 UserSchema.methods.generateJWT = function() {
   const token = crypto.randomBytes(20).toString("hex");
   console.log(token);
