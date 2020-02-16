@@ -54,6 +54,12 @@ let UserSchema = new Schema({
   role: {
     type: String,
     enum: ["Admin", "User"]
+  },
+  resetPasswordToken: {
+    type: String
+  },
+  resetPasswordExpires: {
+    type: Date
   }
 });
 
