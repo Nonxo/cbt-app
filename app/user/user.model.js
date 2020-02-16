@@ -43,9 +43,18 @@ let UserSchema = new Schema({
     trim: true,
     lowercase: true,
     unique: true,
-    required: true
+    required: "Email is required",
+    min: [5, "Too short, minimum is 5 characters"],
+    max: [32, "Too long, maximum is 32 characters"],
+    // eslint-disable-next-line no-useless-escape
+    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/]
   },
-  password: { type: String, required: true },
+  password: {
+    type: String,
+    required: true,
+    min: [5, "Too short, minimum is 5 characters"],
+    max: [32, "Too long, maximum is 32 characters"]
+  },
   salt: { type: String },
   token: { type: String },
   secretKey: {
