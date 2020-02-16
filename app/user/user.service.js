@@ -201,10 +201,11 @@ exports.validPasswordToken = async function(data) {
   } catch (error) {}
 };
 
-exports.resetPassword = async function(data) {
+exports.resetPassword = async function(data, value) {
   try {
     console.log(data, "We are together again");
     const { token } = data;
+    const { password } = value;
     const validUser = await User.findOne({
       resetPasswordToken: token,
       resetPasswordExpires: {
@@ -212,15 +213,42 @@ exports.resetPassword = async function(data) {
       }
     });
     console.log(validUser);
+    const { _id, firstName, email: userEmail, lastName } = validUser;
     if (validUser == null) {
       console.log("Password reset is null");
       return {
         error: true,
-          msg: "Password does not match"
-        };
+        message: `Password reset link is invalid or has expired`
+      };
     }
-    const user = validUser.save();
-    const { firstName, email: userEmail, lastName } = user;
+    console.log(validUser.setPassword(password), "Like a mighty Ocean");
+    await User.findOneAndUpdate(
+      { _id },
+      {
+        password: validUser.setPassword(password),
+        resetPasswordToken: null,
+        resetPasswordExpires: null
+      }
+    );
+    // return {
+    //   error: false,
+    //   message: `Password reset link is a OK`
+    // };
+    // const validUser = await User.findOne({
+    //   token: data.token
+    // });
+    // if (validUser) {
+    //   if (data.newPassword === data.verifyPassword) {
+    //     validUser.setPassword(data.password);
+    //   } else
+    //     return {
+    //       error: true,
+    //       msg: "Password does not match"
+    //     };
+    // }
+
+    // const user = validUser.save();
+
     const resetData = {
       to: userEmail,
       from: email,
@@ -228,14 +256,15 @@ exports.resetPassword = async function(data) {
       subject: "Password Reset Confirmation",
       context: {
         name: `${firstName} ${lastName}`
-      }
+      },
+      text: "You password have just been updated"
     };
-
-    smtpTransport.sendMail(resetData, function(err) {
+    let info = await smtpTransport.sendMail(resetData, function(err, response) {
       if (!err) {
         return {
           error: false,
-          msg: "Password Reset"
+          msg: "Password Reset",
+          message: response
         };
       } else
         return {
@@ -243,6 +272,11 @@ exports.resetPassword = async function(data) {
           msg: "Password does not match"
         };
     });
+    console.log("MyInfo", info);
+    return {
+      error: false,
+      message: `Password reset link is Confirmed`
+    };
   } catch (error) {
     throw new Error(error);
   }
