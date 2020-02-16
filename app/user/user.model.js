@@ -106,18 +106,21 @@ UserSchema.methods.generateAuthToken = function() {
   return (this.token = userToken);
 };
 UserSchema.methods.generateJWT = function() {
-  const today = new Date();
-  const expirationDate = new Date(today);
-  expirationDate.setDate(today.getDate() + 60);
-  console.log(this.email);
-  return (this.token = jwt.sign(
-    {
-      email: this.email,
-      id: this._id,
-      exp: parseInt((expirationDate.getTime() / 100).toString(), 10)
-    },
-    "secret"
-  ));
+  const token = crypto.randomBytes(20).toString("hex");
+  console.log(token);
+  return token;
+  // const today = new Date();
+  // const expirationDate = new Date(today);
+  // expirationDate.setDate(today.getDate() + 60);
+  // console.log(this.email);
+  // return (this.token = jwt.sign(
+  //   {
+  //     email: this.email,
+  //     id: this._id,
+  //     exp: parseInt((expirationDate.getTime() / 100).toString(), 10)
+  //   },
+  //   "secret"
+  // ));
 };
 
 UserSchema.methods.toAuthJSON = function() {
