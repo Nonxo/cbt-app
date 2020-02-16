@@ -1,10 +1,15 @@
-const UserService = require("./user.service");
+const {
+  registerUser,
+  resetPassword,
+  authenticate,
+  forgotPassword
+} = require("./user.service");
 const path = require("path");
-
+const url = require("url");
 exports.registerUser = async (req, res) => {
   try {
     const value = req.body;
-    const data = await UserService.registerUser(value);
+    const data = await registerUser(value);
     console.log(data);
     if (data.error) {
       return res.status(200).json({
@@ -28,7 +33,7 @@ exports.registerUser = async (req, res) => {
 exports.authenticate = async (req, res) => {
   try {
     const value = req.body;
-    const data = await UserService.authenticate(value);
+    const data = await authenticate(value);
 
     if (data.error) {
       return res.status(400).json({
@@ -59,7 +64,7 @@ exports.forgotPassword = async (req, res) => {
         message: "Email is required"
       });
     }
-    const data = await UserService.forgotPassword(value);
+    const data = await forgotPassword(value);
     console.log(data);
     if (data.error) {
       console.log(data.error);
@@ -76,6 +81,30 @@ exports.forgotPassword = async (req, res) => {
     res.status(500).json({
       success: false,
       message: err
+    });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const queryObject = url.parse(req.url, true).query;
+    const value = req.body;
+    const data = await resetPassword(queryObject, value);
+    if (data.error) {
+      console.log(data.error);
+      return res.status(403).json({
+        success: false,
+        message: data.error
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: data
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error
     });
   }
 };
