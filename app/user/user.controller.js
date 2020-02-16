@@ -59,7 +59,7 @@ exports.forgotPassword = async (req, res) => {
     const value = req.body.email;
 
     if (!req.body.email) {
-      res.status(500).json({
+      res.status(400).json({
         success: false,
         message: "Email is required"
       });
@@ -68,7 +68,7 @@ exports.forgotPassword = async (req, res) => {
     console.log(data);
     if (data.error) {
       console.log(data.error);
-      return res.status(403).json({
+      return res.status(409).json({
         success: false,
         message: data.error
       });
