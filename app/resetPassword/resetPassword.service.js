@@ -89,3 +89,96 @@ exports.forgotPassword = async function(data) {
     throw new Error(error);
   }
 };
+
+exports.validateToken = async function(data) {
+  try {
+    // console.log(data, "We are together again");
+    const { token } = data;
+    const user = await PasswordResetToken.findOne({
+      resetToken: token
+    });
+    if (!user) {
+      console.log("Password reset is null");
+      return {
+        error: true,
+        message: `Password reset link is invalid or has expired`
+      };
+    }
+    console.log("Jungle", user);
+    return user;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+// exports.resetPassword = async function(value) {
+//   try {
+//     const { password } = value;
+//     console.log(user);
+//     if (!user) {
+//       console.log("Password reset is null");
+//       return {
+//         error: true,
+//         message: `Password reset link is invalid or has expired`
+//       };
+//     }
+//     // console.log(validUser.setPassword(password), "Like a mighty Ocean");
+//     // await User.findOneAndUpdate(
+//     //   { _id },
+//     //   {
+//     //     password: validUser.setPassword(password),
+//     //     resetPasswordToken: null,
+//     //     resetPasswordExpires: null
+//     //   }
+//     // );
+//     // return {
+//     //   error: false,
+//     //   message: `Password reset link is a OK`
+//     // };
+//     // const validUser = await User.findOne({
+//     //   token: data.token
+//     // });
+//     // if (validUser) {
+//     //   if (data.newPassword === data.verifyPassword) {
+//     //     validUser.setPassword(data.password);
+//     //   } else
+//     //     return {
+//     //       error: true,
+//     //       msg: "Password does not match"
+//     //     };
+//     // }
+
+//     // const user = validUser.save();
+
+//     const resetData = {
+//       to: userEmail,
+//       from: email,
+//       template: "Reset Password email",
+//       subject: "Password Reset Confirmation",
+//       context: {
+//         name: `${firstName} ${lastName}`
+//       },
+//       text: "You password have just been updated"
+//     };
+//     let info = await smtpTransport.sendMail(resetData, function(err, response) {
+//       if (!err) {
+//         return {
+//           error: false,
+//           msg: "Password Reset",
+//           message: response
+//         };
+//       } else
+//         return {
+//           error: true,
+//           msg: "Password does not match"
+//         };
+//     });
+//     console.log("MyInfo", info);
+//     return {
+//       error: false,
+//       message: `Password reset link is Confirmed`
+//     };
+//   } catch (error) {
+//     throw new Error(error);
+//   }
+// };
