@@ -1,35 +1,44 @@
 const User = require("../user/user.model");
 const nodemailer = require("nodemailer");
 const PasswordResetToken = require("./resetPassword.model");
-
+const crypto = require("crypto");
 require("dotenv").config();
 const email = process.env.MAILER_EMAIL_ID;
 const pass = process.env.MAILER_PASS;
 
 exports.forgotPassword = async function(data) {
   try {
-    const registeredUser = new User({
-      email: data
-    });
-
+    // const registeredUser = new User({
+    //   email: data
+    // });
+    // console.log(registeredUser);
+    // console.log(data);
     const validEmail = await User.findOne({
       email: data
     });
-
+    const { _id, email: userEmail } = validEmail;
+    console.log("We are valid also" + validEmail);
+    // const token = registeredUser.generateJWT();
+    const token = new PasswordResetToken({
+      userId: _id,
+      resetToken: crypto.randomBytes(16).toString("hex")
+    });
+    console.log(token, "We are coming");
+    await token.save();
     if (!validEmail) {
       return {
         error: true,
         msg: "User not found"
       };
     }
-    const { _id, email: userEmail } = validEmail;
-    const token = registeredUser.generateJWT();
-    const resetToken = new PasswordResetToken({
-      userId: _id,
-      resetToken: token
-    });
-    console.log(resetToken);
-    await User.findOneAndUpdate({ _id }, { token });
+    // await User.findOneAndUpdate(
+    //   { _id },
+    //   {
+    //     resetPasswordToken: token,
+    //     resetPasswordExpires: Date.now() + 3600000
+    //   }
+    // );
+    // await User.findOneAndUpdate({ _id }, { token });
     let smtpTransport = nodemailer.createTransport({
       service: "Gmail",
       auth: {
