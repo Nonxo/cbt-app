@@ -45,9 +45,7 @@ exports.validateToken = async (req, res, next) => {
         message: "Token is required"
       });
     }
-    let data = await validateToken(queryObject);
-    // eslint-disable-next-line require-atomic-updates
-    res.locals.data = req.body;
+    const data = await validateToken(queryObject);
     if (data.error) {
       console.log(data.error);
       return res.status(409).json({
@@ -55,7 +53,8 @@ exports.validateToken = async (req, res, next) => {
         message: data.error
       });
     }
-    // console.log(res.locals, "We are here o");
+    // eslint-disable-next-line require-atomic-updates
+    res.locals.data = data;
     next();
   } catch (err) {
     res.status(500).json({
@@ -67,11 +66,11 @@ exports.validateToken = async (req, res, next) => {
 
 exports.resetPassword = async (req, res) => {
   try {
-    res.locals.data = req.data;
+    const { data } = res.locals;
     // let data;
     // // const value = req.body.email;
     // res.locals.data = data;
-    console.log(req.body, "Stop looking further");
+    console.log(data, "We are data");
     return res.status(200).json({
       success: true,
       message: `It is done`
