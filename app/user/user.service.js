@@ -1,5 +1,7 @@
 const User = require("./user.model");
+const PasswordResetToken = require("../resetPassword/resetPassword.model");
 const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 // const handleBars = require("nodemailer-express-handlebars");
 // const path = require("path");
 
@@ -14,18 +16,6 @@ const smtpTransport = nodemailer.createTransport({
   }
 });
 
-// const handleBarsOption = {
-//   viewEngine: {
-//     extName: ".hbs",
-//     partialsDir: path.resolve(__dirname + "app/views"),
-//     layoutsDir: path.resolve(__dirname + "app/views"),
-//     defaultLayout: path.resolve(__dirname + "app/views")
-//   },
-//   viewPath: path.resolve(__dirname + "app/views"),
-//   extName: ".html"
-// };
-
-// smtpTransport.use("compile", handleBars(handleBarsOption));
 exports.registerUser = async function(data) {
   try {
     const {
@@ -109,32 +99,36 @@ exports.authenticate = async function(data) {
 
 exports.forgotPassword = async function(data) {
   try {
-    const registeredUser = new User({
-      email: data
-    });
+    // const registeredUser = new User({
+    //   email: data
+    // });
     // console.log(registeredUser);
     // console.log(data);
     const validEmail = await User.findOne({
       email: data
     });
-    console.log("We are valid also" + validEmail);
-    const token = registeredUser.generateJWT();
-    console.log(token, "We are coming");
     const { _id, email: userEmail } = validEmail;
-
+    console.log("We are valid also" + validEmail);
+    // const token = registeredUser.generateJWT();
+    const token = new PasswordResetToken({
+      userId: _id,
+      resetToken: crypto.randomBytes(16).toString("hex")
+    });
+    console.log(token, "We are coming");
+    await token.save();
     if (!validEmail) {
       return {
         error: true,
         msg: "User not found"
       };
     }
-    await User.findOneAndUpdate(
-      { _id },
-      {
-        resetPasswordToken: token,
-        resetPasswordExpires: Date.now() + 3600000
-      }
-    );
+    // await User.findOneAndUpdate(
+    //   { _id },
+    //   {
+    //     resetPasswordToken: token,
+    //     resetPasswordExpires: Date.now() + 3600000
+    //   }
+    // );
     // await User.findOneAndUpdate({ _id }, { token });
     let smtpTransport = nodemailer.createTransport({
       service: "Gmail",
@@ -185,20 +179,6 @@ exports.forgotPassword = async function(data) {
   } catch (error) {
     throw new Error(error);
   }
-};
-
-exports.validPasswordToken = async function(data) {
-  try {
-    let validToken = await User.findOne({
-      where: {
-        resetPasswordToken: data
-      }
-    });
-
-    if (validToken == null) {
-      cons;
-    }
-  } catch (error) {}
 };
 
 exports.resetPassword = async function(data, value) {
