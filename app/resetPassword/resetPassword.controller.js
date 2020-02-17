@@ -60,13 +60,45 @@ exports.validateToken = async (req, res, next) => {
   } catch (err) {
     res.status(500).json({
       success: false,
-        message: data.msg
-      });
-    }
-  } catch (error) {
+      message: err
+    });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    res.locals.data = req.data;
+    // let data;
+    // // const value = req.body.email;
+    // res.locals.data = data;
+    console.log(req.body, "Stop looking further");
+    return res.status(200).json({
+      success: true,
+      message: `It is done`
+    });
+    // if (!req.body.email) {
+    //   res.status(400).json({
+    //     success: false,
+    //     message: "Email is required"
+    //   });
+    // }
+    // const data = await forgotPassword(value);
+    // console.log(data);
+    // if (data.error) {
+    //   console.log(data.error);
+    //   return res.status(409).json({
+    //     success: false,
+    //     message: data.error
+    //   });
+    // }
+    // return res.status(200).json({
+    //   success: true,
+    //   message: data
+    // });
+  } catch (err) {
     res.status(500).json({
       success: false,
-      message: error.message
+      message: err
     });
   }
 };
