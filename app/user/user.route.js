@@ -6,7 +6,7 @@ const {
   registerUser,
   authenticate,
   forgotPassword,
-  resetPassword,
+  // resetPassword,
   renderForgotPasswordTemplate,
   renderResetPasswordTemplate,
   index
@@ -15,7 +15,7 @@ const {
 router.route("/").post(registerUser);
 router.route("/").get(index);
 router.route("/login").post(authenticate);
-router.route("/reset").put(resetPassword);
+// router.route("/reset").put(resetPassword);
 router
   .route("/auth/forgot_password")
   .get(renderForgotPasswordTemplate)
