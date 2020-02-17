@@ -1,32 +1,49 @@
 const User = require("./user.model");
+const nodemailer = require("nodemailer");
+// const handleBars = require("nodemailer-express-handlebars");
+// const path = require("path");
+
+require("dotenv").config();
 const email = process.env.MAILER_EMAIL_ID;
 const pass = process.env.MAILER_PASS;
-const nodemailer = require("nodemailer");
-const handleBars = require("nodemailer-express-handlebars");
-const path = require("path");
-
 const smtpTransport = nodemailer.createTransport({
-  service: process.env.MAILER_SERVICE_PROVIDER || "Gmail",
-  auth: email,
-  pass: pass
+  service: "Gmail",
+  auth: {
+    user: email,
+    pass
+  }
 });
 
-const handleBarsOption = {
-  viewEngine: "handlebars",
-  viewPath: path.resolve("../views/"),
-  extName: ".html"
-};
+// const handleBarsOption = {
+//   viewEngine: {
+//     extName: ".hbs",
+//     partialsDir: path.resolve(__dirname + "app/views"),
+//     layoutsDir: path.resolve(__dirname + "app/views"),
+//     defaultLayout: path.resolve(__dirname + "app/views")
+//   },
+//   viewPath: path.resolve(__dirname + "app/views"),
+//   extName: ".html"
+// };
 
-smtpTransport.use("compile", handleBars(handleBarsOption));
+// smtpTransport.use("compile", handleBars(handleBarsOption));
 exports.registerUser = async function(data) {
   try {
+    const {
+      firstName,
+      lastName,
+      phoneNumber,
+      dateOfBirth,
+      email,
+      password,
+      secretKey
+    } = data;
     const newUser = new User({
-      firstName: data.firstName,
-      lastName: data.lastName,
-      phoneNumber: data.phoneNumber,
-      dateOfBirth: data.dateOfBirth,
-      email: data.email,
-      password: data.password
+      firstName,
+      lastName,
+      phoneNumber,
+      dateOfBirth,
+      email,
+      password
     });
     const validUser = await User.exists({
       email: data.email
@@ -38,14 +55,16 @@ exports.registerUser = async function(data) {
       };
     }
 
-    newUser.setPassword(data.password);
-    newUser.generateJWT();
+    newUser.setPassword(password);
+    newUser.setRoles(secretKey);
+    newUser.generateAuthToken();
     const user = await newUser.save();
     console.log(user);
-    const { firstName } = user;
+    // const { firstName } = user;
     return {
       error: false,
-      message: `${firstName} successfully created`
+      message: `${firstName} successfully created`,
+      user: newUser.toAuthJSON()
     };
   } catch (error) {
     throw new Error(error);
@@ -91,64 +110,145 @@ exports.authenticate = async function(data) {
 exports.forgotPassword = async function(data) {
   try {
     const registeredUser = new User({
-      email: data.email
+      email: data
     });
+    // console.log(registeredUser);
+    // console.log(data);
     const validEmail = await User.findOne({
-      email: data.email
+      email: data
     });
-    const { _id, email: userEmail, firstName, lastName } = validEmail;
+    console.log("We are valid also" + validEmail);
+    const token = registeredUser.generateJWT();
+    console.log(token, "We are coming");
+    const { _id, email: userEmail } = validEmail;
+
     if (!validEmail) {
       return {
         error: true,
         msg: "User not found"
       };
     }
-    User.findOneAndUpdate({ _id }, { token });
-    const token = registeredUser.generateJWT();
+    await User.findOneAndUpdate(
+      { _id },
+      {
+        resetPasswordToken: token,
+        resetPasswordExpires: Date.now() + 3600000
+      }
+    );
+    // await User.findOneAndUpdate({ _id }, { token });
+    let smtpTransport = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: email,
+        pass
+      }
+    });
 
     let forgotPasswordDetails = {
       to: userEmail,
       from: email,
-      template: "Forgot Password Email",
-      subject: "Password reset has arrived",
-      context: {
-        url: "http://localhost:3000/auth/reset_password?token=" + token,
-        name: `${firstName} ${lastName}`
-      }
+      text:
+        "You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n" +
+        "Please click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\n" +
+        `http://localhost:3000/auth/reset_password?token=${token}\n\n` +
+        "If you did not request this, please ignore this email and your password will remain unchanged.\n",
+      subject: "Link to Reset Password"
+      // context: {
+      //   url: "http://localhost:3000/auth/reset_password?token=" + token,
+      //   name: `${firstName} ${lastName}`
+      // }
     };
-    smtpTransport.sendMail(forgotPasswordDetails, function(err) {
-      if (!err) {
+    let info = await smtpTransport.sendMail(forgotPasswordDetails, function(
+      err,
+      response
+    ) {
+      if (err) {
+        console.log(err);
+        return {
+          error: true,
+          msg: err
+        };
+      } else {
+        console.log("Here is the response", response);
         return {
           error: false,
-          msg: "Kindly check your email for further instructions "
+          msg: "Kindly check your email for further instructions ",
+          response
         };
       }
-      return {
-        error: true,
-        msg: err.message
-      };
     });
+    console.log("My info", info);
+    return {
+      error: false,
+      message: "Success"
+    };
   } catch (error) {
     throw new Error(error);
   }
 };
 
-exports.resetPassword = async function(data) {
+exports.validPasswordToken = async function(data) {
   try {
-    const validUser = await User.findOne({
-      token: data.token
+    let validToken = await User.findOne({
+      where: {
+        resetPasswordToken: data
+      }
     });
-    if (validUser) {
-      if (data.newPassword === data.verifyPassword) {
-        validUser.setPassword(data.password);
-      } else
-        return {
-          error: true,
-          msg: "Password does not match"
-        };
+
+    if (validToken == null) {
+      cons;
     }
-    const user = validUser.save();
-    const { firstName, email: userEmail, lastName } = user;
+  } catch (error) {}
+};
+
+exports.resetPassword = async function(data, value) {
+  try {
+    console.log(data, "We are together again");
+    const { token } = data;
+    const { password } = value;
+    const validUser = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: {
+        $gt: Date.now()
+      }
+    });
+    console.log(validUser);
+    const { _id, firstName, email: userEmail, lastName } = validUser;
+    if (validUser == null) {
+      console.log("Password reset is null");
+      return {
+        error: true,
+        message: `Password reset link is invalid or has expired`
+      };
+    }
+    console.log(validUser.setPassword(password), "Like a mighty Ocean");
+    await User.findOneAndUpdate(
+      { _id },
+      {
+        password: validUser.setPassword(password),
+        resetPasswordToken: null,
+        resetPasswordExpires: null
+      }
+    );
+    // return {
+    //   error: false,
+    //   message: `Password reset link is a OK`
+    // };
+    // const validUser = await User.findOne({
+    //   token: data.token
+    // });
+    // if (validUser) {
+    //   if (data.newPassword === data.verifyPassword) {
+    //     validUser.setPassword(data.password);
+    //   } else
+    //     return {
+    //       error: true,
+    //       msg: "Password does not match"
+    //     };
+    // }
+
+    // const user = validUser.save();
+
     const resetData = {
       to: userEmail,
       from: email,
@@ -156,14 +256,15 @@ exports.resetPassword = async function(data) {
       subject: "Password Reset Confirmation",
       context: {
         name: `${firstName} ${lastName}`
-      }
+      },
+      text: "You password have just been updated"
     };
-
-    smtpTransport.sendMail(resetData, function(err) {
+    let info = await smtpTransport.sendMail(resetData, function(err, response) {
       if (!err) {
         return {
           error: false,
-          msg: "Password Reset"
+          msg: "Password Reset",
+          message: response
         };
       } else
         return {
@@ -171,6 +272,11 @@ exports.resetPassword = async function(data) {
           msg: "Password does not match"
         };
     });
+    console.log("MyInfo", info);
+    return {
+      error: false,
+      message: `Password reset link is Confirmed`
+    };
   } catch (error) {
     throw new Error(error);
   }

@@ -6,28 +6,70 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const uuid4 = require("uuid/v4");
+const dotenv = require("dotenv");
+dotenv.config();
 
 /**
  * User schema
  */
 
 let UserSchema = new Schema({
-  _id: { type: String, default: uuid4 },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
-  isVerified: { type: Boolean, default: false },
-  phoneNumber: { type: String, required: true },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  phoneNumber: {
+    type: String,
+    validate: {
+      validator: function(type) {
+        return type.match(
+          /^((\+234)|0)([8]((0[2-9])|(1[0-9]))|([7,9]0[1-9]))[0-9]{7}$/
+        );
+      },
+      message: `Phone number is invalid`
+    },
+    required: true
+  },
   dateOfBirth: {
     type: Date,
     min: "1970-01-01",
     max: Date.now(),
     required: true
   },
-  email: { type: String, required: true },
-  password: { type: String, required: true },
+  email: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    unique: true,
+    required: "Email is required",
+    min: [5, "Too short, minimum is 5 characters"],
+    max: [32, "Too long, maximum is 32 characters"],
+    // eslint-disable-next-line no-useless-escape
+    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/]
+  },
+  password: {
+    type: String,
+    required: true,
+    min: [5, "Too short, minimum is 5 characters"],
+    max: [32, "Too long, maximum is 32 characters"]
+  },
   salt: { type: String },
-  token: { type: String }
+  token: { type: String },
+  secretKey: {
+    type: String
+  },
+  role: {
+    type: String,
+    enum: ["Admin", "User"]
+  },
+  resetPasswordToken: {
+    type: String
+  },
+  resetPasswordExpires: {
+    type: Date
+  }
 });
 
 /**
@@ -55,32 +97,42 @@ UserSchema.methods.comparePassword = function(password, salt, hashedPassword) {
   return hashedPassword === hash;
 };
 
-UserSchema.methods.generateJWT = function() {
-  const today = new Date();
-  const expirationDate = new Date(today);
-  expirationDate.setDate(today.getDate() + 60);
-  return (this.token = jwt.sign(
+UserSchema.methods.setRoles = function(secretKey) {
+  if (secretKey === process.env.MYPRIVATEKEY) {
+    return (this.role = "Admin");
+  }
+  return (this.role = "User");
+};
+UserSchema.methods.generateAuthToken = function() {
+  const myPrivateKey = process.env.MYPRIVATEKEY;
+  this.resetPasswordToken = null;
+  this.resetPasswordExpires = null;
+  const userToken = jwt.sign(
     {
-      email: this.email,
-      id: this._id,
-      exp: parseInt((expirationDate.getTime() / 100).toString(), 10)
+      _id: this._id,
+      role: this.role
     },
-    "secret"
-  ));
+    myPrivateKey
+  );
+  return (this.token = userToken);
 };
 
 UserSchema.methods.generateJWT = function() {
-  const today = new Date();
-  const expirationDate = new Date(today);
-  expirationDate.setDate(today.getDate() + 60);
-  return (this.token = jwt.sign(
-    {
-      email: this.email,
-      id: this._id,
-      exp: parseInt((expirationDate.getTime() / 100).toString(), 10)
-    },
-    "secret"
-  ));
+  const token = crypto.randomBytes(20).toString("hex");
+  console.log(token);
+  return token;
+  // const today = new Date();
+  // const expirationDate = new Date(today);
+  // expirationDate.setDate(today.getDate() + 60);
+  // console.log(this.email);
+  // return (this.token = jwt.sign(
+  //   {
+  //     email: this.email,
+  //     id: this._id,
+  //     exp: parseInt((expirationDate.getTime() / 100).toString(), 10)
+  //   },
+  //   "secret"
+  // ));
 };
 
 UserSchema.methods.toAuthJSON = function() {
