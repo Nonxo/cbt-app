@@ -66,11 +66,19 @@ exports.validateToken = async (req, res, next) => {
 
 exports.resetPassword = async (req, res) => {
   try {
-    const { data } = res.locals;
-    // let data;
-    // // const value = req.body.email;
-    // res.locals.data = data;
-    console.log(data, "We are data");
+    const {
+      data: { resetToken }
+    } = res.locals;
+    const { password } = req.body;
+    const result = await resetPassword(resetToken, password);
+    console.log(resetToken, "We are data");
+    if (result.error) {
+      console.log(result.error);
+      return res.status(409).json({
+        success: false,
+        message: result.error
+      });
+    }
     return res.status(200).json({
       success: true,
       message: `It is done`
