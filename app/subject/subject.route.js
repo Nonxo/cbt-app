@@ -15,6 +15,6 @@ router.route("/create").post(createSubject);
 router.route("/update/:id").put(updateSubject);
 router.route("").get(fetchSubjects);
 router.route("/:id").get(fetchSubjectsById);
-router.route("/:id").delete(deleteSubject);
+router.route("/delete/:id").delete(deleteSubject);
 
 module.exports = router;
