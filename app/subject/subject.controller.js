@@ -2,15 +2,16 @@ const Subject = require("./subject.model");
 
 //Create a new Subject on POST
 exports.createSubject = (req, res) => {
-  Subject.findOne({ title: req.body.title }).then(subject => {
+  const { title, duration } = req.body;
+  Subject.findOne({ title: title }).then(subject => {
     if (subject) {
       return res.status(401).json({
         message: "Subject already exist"
       });
     } else {
       const subject = new Subject({
-        title: req.body.title,
-        duration: req.body.duration
+        title: title,
+        duration: duration
       });
       subject
         .save()
@@ -31,10 +32,11 @@ exports.createSubject = (req, res) => {
 
 // Update a subject
 exports.updateSubject = (req, res) => {
+  const {id, title, duration } = req.body;
   const subject = new Subject({
-    _id: req.body.id,
-    title: req.body.title,
-    duration: req.body.duration
+    _id: id,
+    title: title,
+    duration: duration
   });
   Subject.updateOne({ _id: req.parma.id }, subject)
     .then(result => {
