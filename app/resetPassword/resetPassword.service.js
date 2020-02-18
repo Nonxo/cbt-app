@@ -122,7 +122,46 @@ exports.resetPassword = async function(resetToken, password) {
       };
     }
 
-//     // const user = validUser.save();
+    const updatedUser = new User(userDetails);
+    updatedUser.setPassword(password);
+    const user = await updatedUser.save();
+    const { firstName, email: userEmail, lastName } = user;
+
+    let smtpTransport = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: email,
+        pass
+      }
+    });
+    const resetData = {
+      to: userEmail,
+      from: email,
+      template: "Reset Password email",
+      subject: "Password Reset Confirmation",
+      context: {
+        name: `${firstName} ${lastName}`
+      },
+      text: "You password have just been updated"
+    };
+    let info = await smtpTransport.sendMail(resetData, function(err, response) {
+      if (!err) {
+        return {
+          error: false,
+          msg: "Password Reset",
+          message: response
+        };
+      } else
+        return {
+          error: true,
+          msg: "Password does not match"
+        };
+    });
+    console.log(info, "It is above here");
+    return {
+      error: false,
+      message: `Password reset is Successful`
+    };
 
 //     const resetData = {
 //       to: userEmail,
