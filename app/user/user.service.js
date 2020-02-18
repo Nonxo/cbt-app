@@ -210,24 +210,6 @@ exports.resetPassword = async function(data, value) {
         resetPasswordExpires: null
       }
     );
-    // return {
-    //   error: false,
-    //   message: `Password reset link is a OK`
-    // };
-    // const validUser = await User.findOne({
-    //   token: data.token
-    // });
-    // if (validUser) {
-    //   if (data.newPassword === data.verifyPassword) {
-    //     validUser.setPassword(data.password);
-    //   } else
-    //     return {
-    //       error: true,
-    //       msg: "Password does not match"
-    //     };
-    // }
-
-    // const user = validUser.save();
 
     const resetData = {
       to: userEmail,
