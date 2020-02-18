@@ -66,7 +66,7 @@ exports.forgotPassword = async (req, res) => {
       return res.status(403).json({
         success: false,
         message: data.error
-      });
+      }); 
     }
     return res.status(200).json({
       success: true,
