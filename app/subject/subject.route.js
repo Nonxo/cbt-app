@@ -2,8 +2,19 @@ const express = require("express");
 const router = express.Router();
 const SubjectController = require("./subject.controller");
 
-const { createSubject } = SubjectController;
-// POST request fo creating subject
-router.route("/subject/create").post(createSubject);
+const {
+  createSubject,
+  fetchSubjects,
+  updateSubject,
+  fetchSubjectsById,
+  deleteSubject
+} = SubjectController;
+
+// Subject routes
+router.route("/create").post(createSubject);
+router.route("/update/:id").put(updateSubject);
+router.route("").get(fetchSubjects);
+router.route("/:id").get(fetchSubjectsById);
+router.route("/:id").delete(deleteSubject);
 
 module.exports = router;
