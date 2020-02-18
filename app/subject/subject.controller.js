@@ -32,7 +32,7 @@ exports.createSubject = (req, res) => {
 
 // Update a subject
 exports.updateSubject = (req, res) => {
-  const {id, title, duration } = req.body;
+  const { id, title, duration } = req.body;
   const subject = new Subject({
     _id: id,
     title: title,
