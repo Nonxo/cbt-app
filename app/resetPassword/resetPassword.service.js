@@ -104,42 +104,23 @@ exports.validateToken = async function(data) {
   }
 };
 
-// exports.resetPassword = async function(value) {
-//   try {
-//     const { password } = value;
-//     console.log(user);
-//     if (!user) {
-//       console.log("Password reset is null");
-//       return {
-//         error: true,
-//         message: `Password reset link is invalid or has expired`
-//       };
-//     }
-//     // console.log(validUser.setPassword(password), "Like a mighty Ocean");
-//     // await User.findOneAndUpdate(
-//     //   { _id },
-//     //   {
-//     //     password: validUser.setPassword(password),
-//     //     resetPasswordToken: null,
-//     //     resetPasswordExpires: null
-//     //   }
-//     // );
-//     // return {
-//     //   error: false,
-//     //   message: `Password reset link is a OK`
-//     // };
-//     // const validUser = await User.findOne({
-//     //   token: data.token
-//     // });
-//     // if (validUser) {
-//     //   if (data.newPassword === data.verifyPassword) {
-//     //     validUser.setPassword(data.password);
-//     //   } else
-//     //     return {
-//     //       error: true,
-//     //       msg: "Password does not match"
-//     //     };
-//     // }
+exports.resetPassword = async function(resetToken, password) {
+  try {
+    const validToken = await PasswordResetToken.findOne({ resetToken });
+    if (!validToken) {
+      return {
+        error: true,
+        message: "Token has expired"
+      };
+    }
+    const { userId } = validToken;
+    const userDetails = await User.findOne({ _id: userId });
+    if (!userDetails) {
+      return {
+        error: true,
+        message: "User does not exist"
+      };
+    }
 
 //     // const user = validUser.save();
 
